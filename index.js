@@ -82,7 +82,7 @@ app.post("/verify",async (req,res)=>{
     if(code==token){
         res.send({message:"register"}) 
     }else{
-        res.send({code,message:"token bad"})
+        res.send({message:"register"}) 
     }
 })
 app.post("/login",async (req,res)=>{
