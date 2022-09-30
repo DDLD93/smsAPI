@@ -107,4 +107,4 @@ app.post("/register",async (req,res)=>{
       res.send({code,message:"login bad"})
 })
 
-app.listen(7000,()=>console.log("server started"))
+app.listen(80,()=>console.log("server started"))
