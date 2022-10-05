@@ -1,0 +1,61 @@
+version: "3.6"
+services:
+  reverse-proxy:
+    restart: always
+    image: traefik:v2.4
+    container_name: "traefik"
+    command:
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--api.debug=false"
+      - "--providers.docker=true"
+      - "--log.LEVEL=DEBUG"
+      - "--entryPoints.web.address=:80"
+      - "--entryPoints.websecure.address=:443"
+      - "--providers.docker.exposedbydefault=false"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge=true"
+      - "--certificatesresolvers.myresolver.acme.httpchallenge.entrypoint=web"
+      - "--certificatesresolvers.myresolver.acme.email=umar.jere@gmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+    ports:
+      - "443:443"
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - "./letsencrypt:/letsencrypt"
+      - "/var/run/docker.sock:/var/run/docker.sock:ro"
+    networks:
+        - ujere_net
+  database:
+    image: mongo:latest
+    restart: always
+    container_name: 'mongodb'
+    ports:
+        - 27017:27017
+    volumes:
+      - ${PWD}/STORAGE:/data/db
+    networks:
+        - ujere_net 
+  api:
+    restart: always
+    build: ./api
+    container_name: 'api'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.paypoint.rule=Host(`ddld.info`)"
+      - "traefik.http.routers.paypoint.entrypoints=websecure"
+      - "traefik.http.routers.paypoint.tls.certresolver=myresolver"
+      - "traefik.http.routers.paypoint.middlewares=redirect-to-https"
+      - "traefik.http.routers.redirs.rule=hostregexp(`{host:.+}`)"  
+      - "traefik.http.routers.redirs.entrypoints=web"  
+      - "traefik.http.routers.redirs.middlewares=redirect-to-https"  
+      - "traefik.http.middlewares.redirect-to-https.redirectscheme.scheme=https"
+    ports:
+      - 7000:7000   
+    networks:
+        - ujere_net        
+networks:
+  ujere_net:
+    driver: bridge          
+volumes:
+  mongodata: 
