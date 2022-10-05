@@ -38,7 +38,7 @@ services:
         - ujere_net 
   api:
     restart: always
-    build: ./api
+    build: .
     container_name: 'api'
     labels:
       - "traefik.enable=true"
