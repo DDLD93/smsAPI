@@ -7,5 +7,5 @@ RUN npm install
 
 # Bundle app source
 COPY . .
-EXPOSE 7000
+EXPOSE 3000
 CMD ["node", "index"]
